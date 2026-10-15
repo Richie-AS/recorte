@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Recorte
+Comment=Captura y edición rápida de pantalla
+Exec=recorte
+Icon=applets-screenshooter
+Terminal=false
+Categories=Utility;Graphics;
+Keywords=captura;pantalla;screenshot;recorte;

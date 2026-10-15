@@ -1,0 +1,67 @@
+[package]
+name = "recorte"
+version = "0.1.2"
+description = "Herramienta de captura y edición rápida de pantalla para GNOME Wayland"
+authors = ["Richie-AS <richi24@gmail.com>"]
+license = "GPL-3.0-or-later"
+repository = "https://github.com/Richie-AS/recorte"
+edition = "2024"
+rust-version = "1.95"
+
+[dependencies]
+# UI: egui sobre winit + wgpu (sin eframe, para controlar una ventana por monitor)
+egui = "0.36"
+egui-winit = "0.36"
+egui-wgpu = { version = "0.36", features = ["winit"] }
+winit = "0.30"
+pollster = "0.4"
+
+# Captura vía portal XDG (funciona en GNOME Wayland)
+ashpd = { version = "0.13", features = ["screenshot"] }
+tokio = { version = "1", features = ["rt", "macros"] }
+
+# Procesamiento de imagen y portapapeles
+image = "0.25"
+arboard = "3.6"
+
+# Renderizado de anotaciones sobre la imagen exportada
+tiny-skia = "0.11"
+ab_glyph = "0.2"
+epaint_default_fonts = "0.36"
+
+# Guardado en archivo
+dirs = "7"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+ksni = { version = "0.3.6", default-features = false, features = ["tokio", "blocking"] }
+
+[profile.release]
+strip = true
+
+# Paquete .deb (cargo deb)
+[package.metadata.deb]
+maintainer = "Richie-AS <richi24@gmail.com>"
+section = "graphics"
+priority = "optional"
+extended-description = """\
+Recorte captura la pantalla mediante el portal de GNOME Wayland y permite \
+seleccionar un área entre varios monitores, anotarla con flechas, rectángulos, \
+texto y marcador, pixelar datos sensibles y copiarla o guardarla."""
+depends = "$auto, xdg-desktop-portal, xdg-desktop-portal-gnome | xdg-desktop-portal-backend, libwayland-client0, libxkbcommon0, libvulkan1 | libegl1"
+assets = [
+    ["target/release/recorte", "usr/bin/", "755"],
+    ["packaging/io.github.Richie_AS.Recorte.desktop", "usr/share/applications/", "644"],
+    ["LICENSE", "usr/share/doc/recorte/", "644"],
+]
+
+# Paquete .rpm (cargo generate-rpm)
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/recorte", dest = "/usr/bin/recorte", mode = "755" },
+    { source = "packaging/io.github.Richie_AS.Recorte.desktop", dest = "/usr/share/applications/io.github.Richie_AS.Recorte.desktop", mode = "644" },
+    { source = "LICENSE", dest = "/usr/share/licenses/recorte/LICENSE", mode = "644", doc = true },
+]
+
+[package.metadata.generate-rpm.requires]
+xdg-desktop-portal = "*"
+libwayland-client = "*"
+libxkbcommon = "*"
