@@ -1,10 +1,17 @@
 # Recorte
 
-Herramienta de captura y edición rápida de pantalla para **GNOME en Wayland**, escrita en Rust.
+Herramienta de captura y edición rápida de pantalla para **GNOME en Wayland**, hecha en **Rust** 🦀.
 
 Pulsas `Ctrl + Impr Pant`, la pantalla se congela, seleccionas un área (aunque cruce varios
-monitores), la anotas y la copias o guardas. Inspirada en Flameshot, pero pensada desde cero para
-Wayland y escritorios con varios monitores.
+monitores), la anotas y la copias o guardas.
+
+Recorte nació porque Flameshot no funcionaba con varios monitores en GNOME con Wayland. Está
+inspirado en sus funciones, pero pensado desde cero para Wayland y escritorios con varios
+monitores.
+
+**⬇️ Descargar:** [.deb (Ubuntu/Debian)](https://github.com/Richie-AS/recorte/releases/latest/download/recorte_amd64.deb)
+· [.rpm (Fedora/openSUSE)](https://github.com/Richie-AS/recorte/releases/latest/download/recorte_x86_64.rpm)
+· [todas las versiones](https://github.com/Richie-AS/recorte/releases)
 
 ## Contenido
 
@@ -51,15 +58,16 @@ Wayland y escritorios con varios monitores.
 
 ### Desde un paquete
 
-Descarga el `.deb` o el `.rpm` de la última versión en
-[Releases](https://github.com/Richie-AS/recorte/releases) e instálalo:
+Descarga la última versión e instálala:
 
 ```bash
 # Ubuntu / Debian
-sudo apt install ./recorte_<versión>_amd64.deb
+wget https://github.com/Richie-AS/recorte/releases/latest/download/recorte_amd64.deb
+sudo apt install ./recorte_amd64.deb
 
 # Fedora / openSUSE
-sudo dnf install ./recorte-<versión>.x86_64.rpm
+wget https://github.com/Richie-AS/recorte/releases/latest/download/recorte_x86_64.rpm
+sudo dnf install ./recorte_x86_64.rpm
 ```
 
 Después, **cada usuario** ejecuta una vez:
@@ -334,6 +342,20 @@ cargo generate-rpm     # → target/generate-rpm/recorte-<versión>-1.x86_64.rpm
 `cargo deb` compila en modo release; `cargo generate-rpm` reutiliza ese binario, así que se ejecuta
 después. Antes de publicar una versión nueva, sube `version` en `Cargo.toml`: si no, `apt` y `dnf`
 no la reconocen como actualización.
+
+### Publicar una versión
+
+Los enlaces de descarga directa (`releases/latest/download/recorte_amd64.deb` y
+`recorte_x86_64.rpm`) dependen de que **cada versión incluya copias de los instaladores con esos
+nombres fijos**, además de los nombres con número de versión:
+
+```bash
+V=0.1.4   # la versión nueva
+cp target/debian/recorte_${V}-1_amd64.deb /tmp/recorte_amd64.deb
+cp target/generate-rpm/recorte-${V}-1.x86_64.rpm /tmp/recorte_x86_64.rpm
+gh release create v${V} target/debian/recorte_${V}-1_amd64.deb \
+  target/generate-rpm/recorte-${V}-1.x86_64.rpm /tmp/recorte_amd64.deb /tmp/recorte_x86_64.rpm
+```
 
 ## Licencia
 
