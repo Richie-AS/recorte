@@ -1,6 +1,6 @@
 [package]
 name = "recorte"
-version = "0.1.2"
+version = "0.1.3"
 description = "Herramienta de captura y edición rápida de pantalla para GNOME Wayland"
 authors = ["Richie-AS <richi24@gmail.com>"]
 license = "GPL-3.0-or-later"

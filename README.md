@@ -51,6 +51,9 @@ Wayland y escritorios con varios monitores.
 
 ### Desde un paquete
 
+Descarga el `.deb` o el `.rpm` de la última versión en
+[Releases](https://github.com/Richie-AS/recorte/releases) e instálalo:
+
 ```bash
 # Ubuntu / Debian
 sudo apt install ./recorte_<versión>_amd64.deb
@@ -145,7 +148,7 @@ Aparece debajo de la selección o encima si no cabe. De izquierda a derecha:
 | Deshacer | Quita la última anotación (`Ctrl + Z`). |
 | Copiar | Copia al portapapeles y cierra (`Enter` / `Ctrl + C`). |
 | Guardar | Guarda como PNG y cierra (`Ctrl + S`). |
-| Acerca de | Versión, licencia y créditos (`F1`). |
+| Acerca de | Foto del autor, versión, licencia y créditos (`F1`). |
 | Cerrar | Sale sin copiar ni guardar (`Esc`). |
 
 ### Atajos de teclado
@@ -300,6 +303,7 @@ RENDER_TEST_OUT=/tmp/render.png cargo test render
 | `src/tray.rs` | `--bandeja`: icono en la bandeja (`ksni`). |
 | `src/about.rs` | Diálogo "Acerca de". |
 | `packaging/` | Lanzador `.desktop` para los paquetes. |
+| `assets/autor.jpg` | Foto del autor del diálogo "Acerca de" (256×256, incluida en el ejecutable). |
 
 ### Arquitectura
 
