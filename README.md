@@ -5,9 +5,8 @@ Herramienta de captura y edición rápida de pantalla para **GNOME en Wayland**,
 Pulsas `Ctrl + Impr Pant`, la pantalla se congela, seleccionas un área (aunque cruce varios
 monitores), la anotas y la copias o guardas.
 
-Recorte nació porque Flameshot no funcionaba con varios monitores en GNOME con Wayland. Está
-inspirado en sus funciones, pero pensado desde cero para Wayland y escritorios con varios
-monitores.
+Recorte nació porque mi herramienta de capturas no funcionaba con varios monitores en GNOME con
+Wayland. Está pensado desde cero para Wayland y escritorios con varios monitores.
 
 **⬇️ Descargar:** [.deb (Ubuntu/Debian)](https://github.com/Richie-AS/recorte/releases/latest/download/recorte_amd64.deb)
 · [.rpm (Fedora/openSUSE)](https://github.com/Richie-AS/recorte/releases/latest/download/recorte_x86_64.rpm)
