@@ -8,16 +8,17 @@ use egui::{Align2, Color32, FontId, Pos2, Rect, Shape, Stroke, StrokeKind, Textu
 use image::RgbaImage;
 use tiny_skia::{FillRule, LineCap, LineJoin, Paint, PathBuilder, Pixmap, Transform};
 
-/// Paleta de colores de GNOME disponible en la barra.
-pub const PALETTE: [(&str, Color32); 8] = [
-    ("Rojo", Color32::from_rgb(0xe0, 0x1b, 0x24)),
-    ("Naranja", Color32::from_rgb(0xff, 0x78, 0x00)),
-    ("Amarillo", Color32::from_rgb(0xf6, 0xd3, 0x2d)),
-    ("Verde", Color32::from_rgb(0x33, 0xd1, 0x7a)),
-    ("Azul", Color32::from_rgb(0x35, 0x84, 0xe4)),
-    ("Morado", Color32::from_rgb(0x91, 0x41, 0xac)),
-    ("Blanco", Color32::from_rgb(0xff, 0xff, 0xff)),
-    ("Negro", Color32::from_rgb(0x00, 0x00, 0x00)),
+/// Paleta de colores de GNOME disponible en la barra. Los nombres están en
+/// `i18n::Texts::colors`, en el mismo orden.
+pub const PALETTE: [Color32; 8] = [
+    Color32::from_rgb(0xe0, 0x1b, 0x24), // rojo
+    Color32::from_rgb(0xff, 0x78, 0x00), // naranja
+    Color32::from_rgb(0xf6, 0xd3, 0x2d), // amarillo
+    Color32::from_rgb(0x33, 0xd1, 0x7a), // verde
+    Color32::from_rgb(0x35, 0x84, 0xe4), // azul
+    Color32::from_rgb(0x91, 0x41, 0xac), // morado
+    Color32::from_rgb(0xff, 0xff, 0xff), // blanco
+    Color32::from_rgb(0x00, 0x00, 0x00), // negro
 ];
 /// Opacidad del marcador translúcido.
 const MARKER_ALPHA: u8 = 110;
@@ -34,12 +35,27 @@ pub enum Thickness {
 impl Thickness {
     pub const ALL: [Thickness; 3] = [Thickness::Thin, Thickness::Medium, Thickness::Thick];
 
+    /// Nombre visible, en el idioma de la interfaz.
     pub fn name(self) -> &'static str {
+        let t = crate::i18n::t();
         match self {
-            Thickness::Thin => "Fino",
-            Thickness::Medium => "Medio",
-            Thickness::Thick => "Grueso",
+            Thickness::Thin => t.thin,
+            Thickness::Medium => t.medium,
+            Thickness::Thick => t.thick,
         }
+    }
+
+    /// Identificador fijo para los ajustes (no depende del idioma).
+    pub fn id(self) -> &'static str {
+        match self {
+            Thickness::Thin => "fino",
+            Thickness::Medium => "medio",
+            Thickness::Thick => "grueso",
+        }
+    }
+
+    pub fn from_id(id: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|t| t.id().eq_ignore_ascii_case(id.trim()))
     }
 }
 
@@ -52,7 +68,7 @@ pub struct Style {
 
 impl Default for Style {
     fn default() -> Self {
-        Self { color: PALETTE[0].1, thickness: Thickness::Medium }
+        Self { color: PALETTE[0], thickness: Thickness::Medium }
     }
 }
 
@@ -109,13 +125,14 @@ impl Tool {
     ];
 
     pub fn name(self) -> &'static str {
+        let t = crate::i18n::t();
         match self {
-            Tool::Select => "Selección",
-            Tool::Arrow => "Flecha",
-            Tool::Rectangle => "Rectángulo",
-            Tool::Marker => "Marcador",
-            Tool::Text => "Texto",
-            Tool::Pixelate => "Pixelar",
+            Tool::Select => t.tool_select,
+            Tool::Arrow => t.tool_arrow,
+            Tool::Rectangle => t.tool_rectangle,
+            Tool::Marker => t.tool_marker,
+            Tool::Text => t.tool_text,
+            Tool::Pixelate => t.tool_pixelate,
         }
     }
 
@@ -452,7 +469,7 @@ mod tests {
         let image = gradient(400, 300);
         let pixelated = pixelate(&image);
         let map = PixelMap { bounds_min: Pos2::ZERO, scale: Vec2::splat(2.0), crop_origin: (0, 0) };
-        let blue = Style { color: PALETTE[4].1, thickness: Thickness::Thin };
+        let blue = Style { color: PALETTE[4], thickness: Thickness::Thin };
         let annotations = vec![
             Annotation::Pixelate(Rect::from_min_max(Pos2::new(110.0, 10.0), Pos2::new(190.0, 60.0))),
             Annotation::Arrow { from: Pos2::new(10.0, 140.0), to: Pos2::new(90.0, 80.0), style: blue },
@@ -462,7 +479,7 @@ mod tests {
             },
             Annotation::Marker {
                 points: vec![Pos2::new(110.0, 100.0), Pos2::new(190.0, 110.0)],
-                style: Style { color: PALETTE[2].1, thickness: Thickness::Thick },
+                style: Style { color: PALETTE[2], thickness: Thickness::Thick },
             },
             Annotation::Text { pos: Pos2::new(110.0, 120.0), text: "Hola áé".into(), style: blue },
         ];

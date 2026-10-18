@@ -11,6 +11,7 @@ use std::error::Error;
 use std::process::Command;
 
 pub const INSTALL_ARG: &str = "--instalar-atajo";
+pub const INSTALL_ARG_EN: &str = "--install-shortcut";
 
 const SCHEMA: &str = "org.gnome.settings-daemon.plugins.media-keys";
 const PATH: &str = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/recorte/";
@@ -51,7 +52,7 @@ fn grant_screenshot_permission() -> Result<(), Box<dyn Error>> {
         .output()?;
     if !output.status.success() {
         let detail = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("no se pudo dar permiso de captura: {}", detail.trim()).into());
+        return Err(format!("PermissionStore: {}", detail.trim()).into());
     }
     Ok(())
 }

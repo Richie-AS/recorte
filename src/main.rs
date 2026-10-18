@@ -2,6 +2,7 @@ mod about;
 mod annotations;
 mod capture;
 mod clipboard;
+mod i18n;
 mod save;
 mod settings;
 mod shortcut;
@@ -581,16 +582,13 @@ fn apply_toolbar_action(shared: &mut Shared, clicked: ToolbarAction) -> Action {
 
 /// Diálogo de confirmación antes de copiar o guardar y salir.
 fn show_confirm_dialog(ctx: &egui::Context, shared: &mut Shared, finish: Finish) -> Option<Action> {
+    let t = i18n::t();
     let (title, body, confirm) = match finish {
-        Finish::Copy => (
-            "¿Copiar y salir?",
-            "La captura con sus anotaciones se copiará al portapapeles.".to_owned(),
-            "Copiar y salir  (Enter)",
-        ),
+        Finish::Copy => (t.copy_title, t.copy_body.to_owned(), t.copy_button),
         Finish::Save => (
-            "¿Guardar y salir?",
-            format!("La captura se guardará en {}.", save::screenshots_dir().display()),
-            "Guardar y salir  (Enter)",
+            t.save_title,
+            i18n::fill(t.save_body, &[("dir", &save::screenshots_dir().display().to_string())]),
+            t.save_button,
         ),
     };
 
@@ -604,7 +602,7 @@ fn show_confirm_dialog(ctx: &egui::Context, shared: &mut Shared, finish: Finish)
             if ui.button(confirm).clicked() {
                 action = Some(Action::Finish(finish));
             }
-            if ui.button("Seguir editando  (Esc)").clicked() {
+            if ui.button(t.keep_editing).clicked() {
                 shared.confirm = None;
                 action = Some(Action::RedrawAll);
             }
@@ -703,30 +701,50 @@ fn acquire_single_instance() -> Option<std::fs::File> {
     }
 }
 
+/// `recorte --idioma auto|es|en|pt`: fija el idioma de la interfaz.
+fn set_language_from_cli(code: Option<&str>) {
+    let Some(choice) = code.and_then(i18n::Choice::from_code) else {
+        eprintln!("{}", i18n::t().language_usage);
+        std::process::exit(2);
+    };
+    i18n::set_choice(choice);
+    let name = match choice {
+        i18n::Choice::Auto => i18n::t().tray_language_auto,
+        i18n::Choice::Fixed(lang) => lang.native_name(),
+    };
+    println!("{}", i18n::fill(i18n::t().language_set, &[("lang", name)]));
+}
+
 fn main() {
-    match std::env::args().nth(1).as_deref() {
+    let args: Vec<String> = std::env::args().collect();
+    let t = i18n::t();
+    match args.get(1).map(String::as_str) {
         Some(clipboard::DAEMON_ARG) => {
             if let Err(err) = clipboard::run_daemon() {
-                eprintln!("Error en el portapapeles: {err}");
+                eprintln!("{}", i18n::fill(t.err_clipboard, &[("err", &err.to_string())]));
                 std::process::exit(1);
             }
             return;
         }
-        Some(shortcut::INSTALL_ARG) => {
+        Some(shortcut::INSTALL_ARG | shortcut::INSTALL_ARG_EN) => {
             match shortcut::install() {
-                Ok(()) => println!("Atajo Ctrl+Impr Pant configurado para Recorte."),
+                Ok(()) => println!("{}", t.shortcut_ok),
                 Err(err) => {
-                    eprintln!("No se pudo configurar el atajo: {err}");
+                    eprintln!("{}", i18n::fill(t.err_shortcut, &[("err", &err.to_string())]));
                     std::process::exit(1);
                 }
             }
             return;
         }
-        Some(tray::TRAY_ARG) => {
+        Some(tray::TRAY_ARG | tray::TRAY_ARG_EN) => {
             if let Err(err) = tray::run() {
-                report_error(&format!("No se pudo mostrar el icono en la bandeja: {err}"));
+                report_error(&i18n::fill(t.err_tray, &[("err", &err.to_string())]));
                 std::process::exit(1);
             }
+            return;
+        }
+        Some("--idioma" | "--language") => {
+            set_language_from_cli(args.get(2).map(String::as_str));
             return;
         }
         _ => {}
@@ -742,11 +760,7 @@ fn main() {
     let capture = match capture::capture_screen() {
         Ok(image) => image,
         Err(err) => {
-            report_error(&format!(
-                "No se pudo capturar la pantalla ({err}).\n\
-                 Si es la primera vez, ejecute «recorte --instalar-atajo» \
-                 o abra Recorte desde el menú de aplicaciones para dar permiso."
-            ));
+            report_error(&i18n::fill(t.err_capture, &[("err", &err.to_string())]));
             std::process::exit(1);
         }
     };
@@ -760,14 +774,15 @@ fn main() {
         drop(app);
         let result = match finish {
             Finish::Copy => clipboard::copy_in_background(&image),
-            Finish::Save => save::save_png(&image).map(|path| println!("Guardada en {}", path.display())),
+            Finish::Save => save::save_png(&image)
+                .map(|path| println!("{}", i18n::fill(t.saved_to, &[("path", &path.display().to_string())]))),
         };
         if let Err(err) = result {
-            let what = match finish {
-                Finish::Copy => "copiar la captura",
-                Finish::Save => "guardar la captura",
+            let template = match finish {
+                Finish::Copy => t.err_copy,
+                Finish::Save => t.err_save,
             };
-            report_error(&format!("No se pudo {what}: {err}"));
+            report_error(&i18n::fill(template, &[("err", &err.to_string())]));
             std::process::exit(1);
         }
     }

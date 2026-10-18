@@ -2,29 +2,30 @@
 
 const NAME: &str = "Recorte";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
-const DESCRIPTION: &str = env!("CARGO_PKG_DESCRIPTION");
 const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 const REPOSITORY: &str = env!("CARGO_PKG_REPOSITORY");
-const LICENSE: &str = env!("CARGO_PKG_LICENSE");
 
 /// Foto del autor (256×256), recortada a un círculo al mostrarla.
 const AUTHOR_PHOTO: &[u8] = include_bytes!("../assets/autor.jpg");
 const PHOTO_SIZE: f32 = 112.0;
 
-const CREDITS: &[(&str, &str)] = &[
-    ("egui", "interfaz"),
-    ("winit", "ventanas"),
-    ("wgpu", "gráficos"),
-    ("ashpd", "portal de capturas"),
-    ("ksni", "icono en la bandeja"),
-    ("arboard", "portapapeles"),
-    ("image · tiny-skia · ab_glyph", "imagen y dibujo"),
-    ("Fuente Ubuntu", "Ubuntu Font Licence 1.0"),
-];
+fn credits(t: &crate::i18n::Texts) -> [(&'static str, &'static str); 8] {
+    [
+        ("egui", t.credit_ui),
+        ("winit", t.credit_windows),
+        ("wgpu", t.credit_graphics),
+        ("ashpd", t.credit_portal),
+        ("ksni", t.credit_tray),
+        ("arboard", t.credit_clipboard),
+        ("image · tiny-skia · ab_glyph", t.credit_image),
+        (t.credit_font, "Ubuntu Font Licence 1.0"),
+    ]
+}
 
 /// Dibuja el diálogo. Devuelve `true` si el usuario lo cerró con el botón.
 pub fn show(ctx: &egui::Context) -> bool {
     let mut close = false;
+    let t = crate::i18n::t();
     egui::Modal::new(egui::Id::new("acerca_de")).show(ctx, |ui| {
         ui.set_width(380.0);
         ui.vertical_centered(|ui| {
@@ -36,45 +37,42 @@ pub fn show(ctx: &egui::Context) -> bool {
                 ui.add_space(8.0);
             }
             ui.heading(NAME);
-            ui.label(format!("Versión {VERSION}"));
+            ui.label(crate::i18n::fill(t.about_version, &[("version", VERSION)]));
             ui.add_space(4.0);
-            ui.label(DESCRIPTION);
+            ui.label(t.about_description);
         });
         ui.add_space(12.0);
 
         egui::Grid::new("datos").num_columns(2).spacing([12.0, 6.0]).show(ui, |ui| {
             // Cargo separa varios autores con ':'.
             if !AUTHORS.is_empty() {
-                ui.strong("Autor");
+                ui.strong(t.about_author);
                 ui.label(AUTHORS.replace(':', ", "));
                 ui.end_row();
             }
             if !REPOSITORY.is_empty() {
-                ui.strong("Código fuente");
+                ui.strong(t.about_source);
                 ui.hyperlink(REPOSITORY);
                 ui.end_row();
             }
-            ui.strong("Licencia");
-            ui.label(LICENSE.replace("-or-later", " o posterior"));
+            ui.strong(t.about_license);
+            ui.label(t.about_license_value);
             ui.end_row();
         });
 
         ui.add_space(8.0);
-        ui.small(
-            "Este programa es software libre: puede redistribuirlo y modificarlo bajo los \
-             términos de la Licencia Pública General de GNU. Se distribuye SIN NINGUNA GARANTÍA.",
-        );
+        ui.small(t.about_disclaimer);
 
         ui.add_space(8.0);
-        ui.collapsing("Créditos", |ui| {
-            for (name, role) in CREDITS {
+        ui.collapsing(t.about_credits, |ui| {
+            for (name, role) in credits(t) {
                 ui.label(format!("{name} — {role}"));
             }
         });
 
         ui.add_space(12.0);
         ui.vertical_centered(|ui| {
-            if ui.button("Cerrar  (Esc)").clicked() {
+            if ui.button(t.about_close).clicked() {
                 close = true;
             }
         });

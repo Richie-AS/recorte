@@ -1,9 +1,16 @@
 [Desktop Entry]
 Type=Application
 Name=Recorte
-Comment=Captura y edición rápida de pantalla
+GenericName=Screenshot Tool
+GenericName[es]=Herramienta de capturas
+GenericName[pt]=Ferramenta de captura de tela
+Comment=Fast screenshot and annotation tool
+Comment[es]=Captura y edición rápida de pantalla
+Comment[pt]=Captura e edição rápida de tela
 Exec=recorte
 Icon=applets-screenshooter
 Terminal=false
-Categories=Utility;Graphics;
-Keywords=captura;pantalla;screenshot;recorte;
+Categories=Utility;
+Keywords=screenshot;capture;screen;annotate;
+Keywords[es]=captura;pantalla;screenshot;recorte;anotar;
+Keywords[pt]=captura;tela;screenshot;print;anotar;

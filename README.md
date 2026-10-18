@@ -19,6 +19,7 @@ Wayland. Está pensado desde cero para Wayland y escritorios con varios monitore
 - [Instalación](#instalación)
 - [Uso](#uso)
 - [Icono en la bandeja](#icono-en-la-bandeja)
+- [Idioma](#idioma)
 - [Varios monitores](#varios-monitores)
 - [Línea de comandos](#línea-de-comandos)
 - [Archivos que usa Recorte](#archivos-que-usa-recorte)
@@ -37,6 +38,7 @@ Wayland. Está pensado desde cero para Wayland y escritorios con varios monitore
 - **Copiar al portapapeles** o **guardar como PNG** en la carpeta de capturas.
 - **Barra flotante** junto a la selección, que salta arriba si no cabe debajo.
 - **Atajo global** `Ctrl + Impr Pant` e **icono en la bandeja del sistema**.
+- **Interfaz en español, inglés y portugués**: sigue el idioma del sistema o el que elijas.
 - Paquetes **.deb** y **.rpm**.
 
 ## Requisitos
@@ -178,8 +180,11 @@ En los diálogos de confirmación, `Enter` confirma y `Esc` vuelve a la edición
 - **Copiar:** la imagen queda en el portapapeles lista para pegar. En Linux el portapapeles
   pertenece al programa que copió, así que Recorte deja un pequeño proceso en segundo plano que lo
   mantiene hasta que copies otra cosa.
-- **Guardar:** se guarda en `~/Imágenes/Capturas de pantalla/Captura AAAA-MM-DD HH-MM-SS.png`. Si
-  esa carpeta no existe, en `~/Imágenes`. Dos capturas en el mismo segundo no se pisan.
+- **Guardar:** se guarda en la carpeta de capturas de tu carpeta de imágenes, con la fecha y hora
+  en el nombre: `~/Imágenes/Capturas de pantalla/Captura AAAA-MM-DD HH-MM-SS.png` en español,
+  `~/Pictures/Screenshots/Screenshot …png` en inglés o `~/Imagens/Capturas de tela/Captura de tela …png`
+  en portugués. Si esa carpeta no existe, en la carpeta de imágenes. Dos capturas en el mismo
+  segundo no se pisan.
 
 ## Icono en la bandeja
 
@@ -190,10 +195,31 @@ eliges **Salir**. Su menú:
 |---|---|
 | Capturar pantalla | Abre una captura (espera a que se cierre el menú para que no salga en la imagen). |
 | Abrir carpeta de capturas | Abre la carpeta donde se guardan los PNG. |
-| Iniciar con la sesión | Si está marcada, el icono aparece al iniciar sesión. Desactivada por defecto. |
+| Configuración → Idioma | Automático (idioma del sistema), Español, English o Português. Ver [Idioma](#idioma). |
+| Configuración → Iniciar con la sesión | Si está marcada, el icono aparece al iniciar sesión. Desactivada por defecto. |
 | Salir | Cierra el icono. El atajo sigue funcionando. |
 
 Cada captura corre en su propio proceso: si una falla, el icono no se cierra.
+
+## Idioma
+
+Recorte está en **español, inglés y portugués**. Por defecto usa el idioma del sistema:
+
+| Idioma del sistema (`LANG`) | Interfaz |
+|---|---|
+| `es_*` (por ejemplo `es_PY`, `es_ES`) | Español |
+| `pt_*` (por ejemplo `pt_BR`, `pt_PT`) | Português |
+| Cualquier otro | English |
+
+Para elegirlo a mano, hay tres formas:
+
+1. **Icono de la bandeja → Configuración → Idioma.** El menú cambia al instante y las capturas
+   siguientes se abren en el idioma elegido. *Automático (sistema)* vuelve a seguir al sistema.
+2. **Línea de comandos:** `recorte --idioma en` (o `--language`), con `auto`, `es`, `en` o `pt`.
+3. **Archivo de ajustes:** la línea `idioma=` en `~/.config/recorte/ajustes`.
+
+El nombre y la descripción del lanzador en el menú de aplicaciones siguen siempre el idioma del
+sistema, porque los elige GNOME.
 
 ## Varios monitores
 
@@ -209,8 +235,9 @@ Cada captura corre en su propio proceso: si una falla, el icono no se cierra.
 | Comando | Qué hace |
 |---|---|
 | `recorte` | Abre una captura (e inicia el icono de la bandeja si no está). |
-| `recorte --bandeja` | Solo muestra el icono en la bandeja. |
-| `recorte --instalar-atajo` | Configura el atajo y el permiso de captura para el usuario actual. |
+| `recorte --bandeja` (o `--tray`) | Solo muestra el icono en la bandeja. |
+| `recorte --instalar-atajo` (o `--install-shortcut`) | Configura el atajo y el permiso de captura para el usuario actual. |
+| `recorte --idioma auto\|es\|en\|pt` (o `--language`) | Fija el idioma de la interfaz. `auto` sigue al sistema. |
 
 Variables de entorno útiles para diagnosticar problemas gráficos:
 
@@ -223,11 +250,19 @@ Variables de entorno útiles para diagnosticar problemas gráficos:
 
 | Ruta | Contenido |
 |---|---|
-| `~/.config/recorte/ajustes` | Último color y grosor elegidos. |
+| `~/.config/recorte/ajustes` | Último color y grosor, e idioma elegido. Se puede editar a mano (ver abajo). |
 | `~/.config/autostart/io.github.Richie_AS.Recorte.desktop` | Existe si "Iniciar con la sesión" está marcado. |
-| `~/Imágenes/Capturas de pantalla/` | Capturas guardadas. |
+| `~/Imágenes/Capturas de pantalla/` (según el idioma) | Capturas guardadas. |
 | `$XDG_RUNTIME_DIR/recorte.lock` | Evita dos capturas a la vez. |
 | `$XDG_RUNTIME_DIR/recorte-bandeja.lock` | Evita dos iconos en la bandeja. |
+
+Contenido de `~/.config/recorte/ajustes`:
+
+```text
+color=#e01b24
+grosor=medio    # fino | medio | grueso
+idioma=auto     # auto | es | en | pt
+```
 
 El identificador de la aplicación es `io.github.Richie_AS.Recorte`. Coincide con el nombre del
 lanzador `.desktop` y es el nombre con que el portal guarda el permiso de captura.
@@ -305,12 +340,21 @@ RENDER_TEST_OUT=/tmp/render.png cargo test render
 | `src/toolbar.rs` | Barra flotante, iconos y paleta de colores. |
 | `src/clipboard.rs` | Copia al portapapeles con un proceso en segundo plano (`arboard`). |
 | `src/save.rs` | Guardado en PNG. |
-| `src/settings.rs` | Ajustes persistentes (color y grosor). |
+| `src/settings.rs` | Ajustes persistentes (color, grosor e idioma). |
+| `src/i18n.rs` | Textos en español, inglés y portugués, y detección del idioma. |
 | `src/shortcut.rs` | `--instalar-atajo`: atajo de GNOME y permiso del portal. |
 | `src/tray.rs` | `--bandeja`: icono en la bandeja (`ksni`). |
 | `src/about.rs` | Diálogo "Acerca de". |
-| `packaging/` | Lanzador `.desktop` para los paquetes. |
+| `packaging/` | Lanzador `.desktop` para los paquetes (traducido a los tres idiomas). |
 | `assets/autor.jpg` | Foto del autor del diálogo "Acerca de" (256×256, incluida en el ejecutable). |
+
+### Textos e idiomas
+
+Todos los textos visibles están en `src/i18n.rs`, en la estructura `Texts` y sus tres versiones
+`ES`, `EN` y `PT`. Para agregar un texto, se declara el campo en `Texts` y se completa en los tres
+idiomas: si falta en alguno, el programa no compila. Los textos con datos usan marcadores
+(`{dir}`, `{err}`…) que se completan con `i18n::fill`, y una prueba comprueba que cada idioma los
+tenga.
 
 ### Arquitectura
 

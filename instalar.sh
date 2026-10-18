@@ -10,16 +10,8 @@ install -s -m 755 target/release/recorte ~/.local/bin/recorte
 
 # El nombre del lanzador debe coincidir con el identificador de la app (APP_ID).
 rm -f ~/.local/share/applications/recorte.desktop ~/.local/share/applications/py.com.code100.Recorte.desktop
-cat > ~/.local/share/applications/io.github.Richie_AS.Recorte.desktop <<EOF
-[Desktop Entry]
-Type=Application
-Name=Recorte
-Comment=Captura y edición rápida de pantalla
-Exec=$HOME/.local/bin/recorte
-Icon=applets-screenshooter
-Terminal=false
-Categories=Utility;Graphics;
-EOF
+sed "s|^Exec=recorte$|Exec=$HOME/.local/bin/recorte|" packaging/io.github.Richie_AS.Recorte.desktop \
+  > ~/.local/share/applications/io.github.Richie_AS.Recorte.desktop
 
 # Atajo global de GNOME (Ctrl+Impr Pant), sin borrar otros atajos personalizados.
 ~/.local/bin/recorte --instalar-atajo

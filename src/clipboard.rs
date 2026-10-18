@@ -27,7 +27,7 @@ pub fn copy_in_background(image: &RgbaImage) -> Result<(), Box<dyn Error>> {
         .process_group(0)
         .spawn()?;
 
-    let mut stdin = child.stdin.take().ok_or("sin stdin en el proceso hijo")?;
+    let mut stdin = child.stdin.take().ok_or("child process has no stdin")?;
     stdin.write_all(&image.width().to_le_bytes())?;
     stdin.write_all(&image.height().to_le_bytes())?;
     stdin.write_all(image.as_raw())?;

@@ -5,13 +5,14 @@ use std::path::PathBuf;
 
 use image::RgbaImage;
 
-/// Carpeta de capturas de GNOME (`~/Imágenes/Capturas de pantalla` en español),
-/// o la carpeta de imágenes si no existe.
+/// Carpeta de capturas de GNOME dentro de la carpeta de imágenes
+/// (`Capturas de pantalla`, `Screenshots` o `Capturas de tela` según el idioma del
+/// sistema), o la carpeta de imágenes si ninguna existe.
 pub fn screenshots_dir() -> PathBuf {
     let pictures = dirs::picture_dir()
         .or_else(dirs::home_dir)
         .unwrap_or_else(|| PathBuf::from("."));
-    ["Capturas de pantalla", "Screenshots"]
+    [crate::i18n::t().screenshots_folder, "Capturas de pantalla", "Screenshots", "Capturas de tela"]
         .iter()
         .map(|name| pictures.join(name))
         .find(|dir| dir.is_dir())
@@ -24,11 +25,12 @@ pub fn save_png(image: &RgbaImage) -> Result<PathBuf, Box<dyn Error>> {
     std::fs::create_dir_all(&dir)?;
 
     let stamp = chrono::Local::now().format("%Y-%m-%d %H-%M-%S");
-    let mut path = dir.join(format!("Captura {stamp}.png"));
+    let prefix = crate::i18n::t().file_prefix;
+    let mut path = dir.join(format!("{prefix} {stamp}.png"));
     // Dos capturas en el mismo segundo no deben pisarse.
     let mut n = 2;
     while path.exists() {
-        path = dir.join(format!("Captura {stamp} ({n}).png"));
+        path = dir.join(format!("{prefix} {stamp} ({n}).png"));
         n += 1;
     }
 

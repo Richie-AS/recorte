@@ -106,21 +106,22 @@ pub fn show(
                         separator(ui);
                         style_button(ui, style);
                         separator(ui);
-                        if button(ui, Icon::Undo, false, can_undo, "Deshacer (Ctrl+Z)") {
+                        let t = crate::i18n::t();
+                        if button(ui, Icon::Undo, false, can_undo, t.tip_undo) {
                             action = Some(ToolbarAction::Undo);
                         }
                         separator(ui);
-                        if button(ui, Icon::Copy, false, true, "Copiar y salir (Enter / Ctrl+C)") {
+                        if button(ui, Icon::Copy, false, true, t.tip_copy) {
                             action = Some(ToolbarAction::Copy);
                         }
-                        if button(ui, Icon::Save, false, true, "Guardar y salir (Ctrl+S)") {
+                        if button(ui, Icon::Save, false, true, t.tip_save) {
                             action = Some(ToolbarAction::Save);
                         }
                         separator(ui);
-                        if button(ui, Icon::About, false, true, "Acerca de Recorte (F1)") {
+                        if button(ui, Icon::About, false, true, t.tip_about) {
                             action = Some(ToolbarAction::About);
                         }
-                        if button(ui, Icon::Close, false, true, "Cerrar (Esc)") {
+                        if button(ui, Icon::Close, false, true, t.tip_close) {
                             action = Some(ToolbarAction::Close);
                         }
                     });
@@ -149,14 +150,14 @@ fn style_button(ui: &mut egui::Ui, style: &mut Style) {
         Thickness::Thick => 10.0,
     };
     ui.painter().circle(rect.center(), radius, style.color, Stroke::new(1.5, ICON_COLOR));
-    let response = response.on_hover_text("Color y grosor");
+    let response = response.on_hover_text(crate::i18n::t().color_and_size);
 
     egui::Popup::from_toggle_button_response(&response)
         .close_behavior(egui::PopupCloseBehavior::CloseOnClickOutside)
         .show(|ui| {
             ui.spacing_mut().item_spacing = Vec2::new(4.0, 6.0);
             ui.horizontal(|ui| {
-                for (name, color) in PALETTE {
+                for (color, name) in PALETTE.into_iter().zip(crate::i18n::t().colors) {
                     let (rect, swatch) = ui.allocate_exact_size(Vec2::splat(26.0), Sense::click());
                     let selected = style.color == color;
                     if selected {
