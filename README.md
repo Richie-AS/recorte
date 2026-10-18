@@ -371,9 +371,6 @@ tenga.
 - **GPU:** se pide la GPU integrada (`LowPower`), suficiente para dibujar y más estable en equipos
   con gráficos híbridos.
 
-Las decisiones de diseño y el estado del proyecto están con más detalle en
-[CONTEXTO.md](CONTEXTO.md).
-
 ### Generar los paquetes
 
 ```bash
