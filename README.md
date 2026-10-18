@@ -373,15 +373,32 @@ tenga.
 
 ### Generar los paquetes
 
+Los paquetes se compilan contra **glibc 2.39** (Ubuntu 24.04 LTS) para que se instalen también en
+distribuciones más antiguas que la máquina donde se compila. Un binario enlazado contra una glibc
+más nueva no arranca en sistemas con una anterior, mientras que uno enlazado contra 2.39 funciona
+en cualquier versión posterior. Para elegir la versión de glibc se usa
+[`cargo-zigbuild`](https://github.com/rust-cross/cargo-zigbuild), que necesita
+[Zig](https://ziglang.org/) en el `PATH` (por ejemplo, `pip install ziglang` instala el binario en
+`ziglang/zig`).
+
 ```bash
-cargo install cargo-deb cargo-generate-rpm
-cargo deb              # → target/debian/recorte_<versión>-1_amd64.deb
-cargo generate-rpm     # → target/generate-rpm/recorte-<versión>-1.x86_64.rpm
+cargo install cargo-deb cargo-generate-rpm cargo-zigbuild
+cargo zigbuild --release --target x86_64-unknown-linux-gnu.2.39
+cargo deb --no-build --target x86_64-unknown-linux-gnu
+# → target/debian/recorte_<versión>-1_amd64.deb
+cargo generate-rpm --target x86_64-unknown-linux-gnu
+# → target/x86_64-unknown-linux-gnu/generate-rpm/recorte-<versión>-1.x86_64.rpm
 ```
 
-`cargo deb` compila en modo release; `cargo generate-rpm` reutiliza ese binario, así que se ejecuta
-después. Antes de publicar una versión nueva, sube `version` en `Cargo.toml`: si no, `apt` y `dnf`
-no la reconocen como actualización.
+Para comprobar que el binario no pide una glibc más nueva (la última línea debe ser `GLIBC_2.39`
+o anterior):
+
+```bash
+objdump -T target/x86_64-unknown-linux-gnu/release/recorte | grep -oE 'GLIBC_[0-9.]+' | sort -Vu | tail -1
+```
+
+Antes de publicar una versión nueva, sube `version` en `Cargo.toml`: si no, `apt` y `dnf` no la
+reconocen como actualización.
 
 ### Publicar una versión
 
@@ -392,9 +409,10 @@ nombres fijos**, además de los nombres con número de versión:
 ```bash
 V=0.1.4   # la versión nueva
 cp target/debian/recorte_${V}-1_amd64.deb /tmp/recorte_amd64.deb
-cp target/generate-rpm/recorte-${V}-1.x86_64.rpm /tmp/recorte_x86_64.rpm
+RPM=target/x86_64-unknown-linux-gnu/generate-rpm/recorte-${V}-1.x86_64.rpm
+cp $RPM /tmp/recorte_x86_64.rpm
 gh release create v${V} target/debian/recorte_${V}-1_amd64.deb \
-  target/generate-rpm/recorte-${V}-1.x86_64.rpm /tmp/recorte_amd64.deb /tmp/recorte_x86_64.rpm
+  $RPM /tmp/recorte_amd64.deb /tmp/recorte_x86_64.rpm
 ```
 
 ## Licencia
